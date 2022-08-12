@@ -1,25 +1,27 @@
 import os
-import subprocess
 from pyfiglet import figlet_format
 from termcolor import colored
 
 banner = figlet_format('AgentsRestart')
 print(colored(banner, 'green'))
 
-os.system("echo Hello from the other side!")
+os.system("/var/ossec/bin/agent_control -lc >> /scripts/active_agents.txt")
+active_agents = open("/scripts/active_agents.txt", 'r')
 
-new = subprocess.run(["echo", "Hello from the other side!"])
-print(new)
+i = 0
+for active_agent in active_agents:
+    if i < 2:
+        pass
+    else:
+        active_agent = active_agent.split()
+        try:
+            ID = active_agent[1][:-1]
+        except IndexError:
+            break
+        command = "/var/ossec/bin/agent_control -R " + ID
+        os.system(command)
+    i += 1
 
-os.system("ls")
-os.system("cd .. | ls")
+active_agents.close()
+os.system("rm -f /scripts/active_agents.txt")
 
-home_dir = subprocess.run(["cd", ".."])
-print(home_dir)
-
-
-list_files = subprocess.run(["/var/ossec/bin/agent_control", "-lc"])
-print(list_files)
-
-list_files = subprocess.run(["ls", "/"])
-print(list_files)
